@@ -28,7 +28,12 @@ TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 echo "Скачиваю Scan2XLSX из $REPO..."
-curl -fL --retry 3 --progress-bar -o "$TMP_DIR/$ASSET" "$BASE_URL/$ASSET"
+if [[ -t 2 ]]; then
+  CURL_PROGRESS="--progress-bar"
+else
+  CURL_PROGRESS="-sS"
+fi
+curl -fL --retry 3 $CURL_PROGRESS -o "$TMP_DIR/$ASSET" "$BASE_URL/$ASSET"
 
 if curl -fsSL -o "$TMP_DIR/$ASSET.sha256" "$BASE_URL/$ASSET.sha256"; then
   (cd "$TMP_DIR" && shasum -a 256 -c "$ASSET.sha256")
